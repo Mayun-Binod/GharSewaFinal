@@ -1,6 +1,7 @@
 from django.urls import path
+from .models import Booking
+from .views import delete_booking,booking_list
 from . import views
-
 urlpatterns = [
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
@@ -32,6 +33,10 @@ urlpatterns = [
     
     # Edit Profile
     path('editprofile/', views.edit_profile, name='editprofile'),
+
+    # delete profile of customer
+    path('deleteprofile/', views.delete_profile, name='deleteprofile'),
+
     
     # Admin Panel
     path('admin_home/', views.admin_home, name= 'admin_home'),
@@ -78,8 +83,13 @@ urlpatterns = [
     
     path('booking_status/<int:pid>', views.bookingStatus, name= 'booking_status'),
     
-    # admit edit booking
+    # admit delete booking
+    path('booking-list/', booking_list, name='booking_list'),  # Ensure this line is correct
+    path('delete_booking/<int:book_id>/', delete_booking, name='delete_booking'),  # URL to delete booking
 
+
+    
+    # ...
     # Other URL patterns...
 
     

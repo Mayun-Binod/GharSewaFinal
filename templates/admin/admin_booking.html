@@ -1,24 +1,8 @@
 {% extends 'admin/admin_nav.html' %}
 
-{% block css%}
+{% block css %}
 <style>
-    
-    .hidden {
-        display: none;
-    }
-    h2 {
-        text-shadow: 20px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        line-height: 1.65;
-        font-weight: bold;
-        font-family: monospace;
-        padding: 0.5rem;
-        text-align: center;
-        color: #414141;
-
-
-    }
+    /* your styles here */
 </style>
 {% endblock %}
 
@@ -40,29 +24,35 @@
                     <th scope="col">Book Days</th>
                     <th scope="col">Book Hours</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for book in books%}
+                {% for book in books %}
                 <tr>
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td>{{book.user.service.service_name}}</td>
-                    <td>{{book.customer.user.first_name}} {{book.customer.user.last_name}}</td>
-                    <td>{{book.customer.address}}</td>
-                    <td>{{book.user.user.first_name}} {{book.user.user.last_name}}</td>
-                    <td>{{book.book_date}}</td>
-                    <td>{{book.book_days}} days</td>
-                    <td>{{book.book_hours}} hours</td>
-                    <td>{{book.status.status}}</td>
-                    
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ book.user.service.service_name }}</td>
+                    <td>{{ book.customer.user.first_name }} {{ book.customer.user.last_name }}</td>
+                    <td>{{ book.customer.address }}</td>
+                    <td>{{ book.user.user.first_name }} {{ book.user.user.last_name }}</td>
+                    <td>{{ book.book_date }}</td>
+                    <td>{{ book.book_days }} days</td>
+                    <td>{{ book.book_hours }} hours</td>
+                    <td>{{ book.status.status }}</td>
+                    <td>
+                        <form action="{% url 'delete_booking' book.id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this booking?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
-    
             </tbody>
+            
         </table>
     </div>
     
 </div>
 {% endblock %}
-
-

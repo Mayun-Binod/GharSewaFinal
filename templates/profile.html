@@ -139,6 +139,7 @@
         {% endif %}
        
         <a href="{% url 'editprofile' %}" class="btn btn-outline-primary">Edit Profile</a>
+        <a href="{% url 'deleteprofile' %}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete your profile?');">Delete Profile</a>
 </div>
 </div>
 

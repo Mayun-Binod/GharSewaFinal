@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Profile{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+    <h3 class="mt-2 text-center text-danger">Delete Your Profile</h3>
+    <p class="text-center">Are you sure you want to delete your profile? This action cannot be undone.</p>
+    <form action="{% url 'deleteprofile' %}" method="post" style="text-align: center;">
+        {% csrf_token %}
+        <!-- Confirmation dialog on button click -->
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your profile?');">Delete Profile</button>
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

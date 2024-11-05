@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 
 from .forms import BookingForm 
 from django.shortcuts import get_object_or_404
+
+from .models import Booking 
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -140,7 +142,7 @@ def admin_login(request):
             login(request, user)
             if user.is_staff:
                 request.session['uid']= request.POST['logusername']
-                return redirect('dashboard')
+                return redirect('index')
             else:
                 return redirect('error')
         
@@ -316,7 +318,7 @@ def profile(request):
     return render(request, 'profile.html', {'profile': profile, 'page': page})
 
 
-# @login_required(login_url='login')
+@login_required(login_url='login')
 def dashboard(request):
     if not request.session.has_key('uid'):
         messages.error(request, "Either you are not logged in or you are not authorized to access the page")
@@ -598,6 +600,54 @@ def edit_profile(request):
     context = {'page': page, 'services': services, 'city': city, 'user': user}
     return render(request, 'editprofile.html', context)
 
+# delete profile for customer
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from .models import Service_Man, Customer
+
+@login_required(login_url='login')
+def delete_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        print(f"Deleting profile for user: {user}")
+
+        profile_deleted = False
+
+        try:
+            # Attempt to delete the user's associated profiles
+            try:
+                serviceman_profile = Service_Man.objects.get(user=user)
+                serviceman_profile.delete()
+                print("Deleted Service_Man profile.")
+                profile_deleted = True
+            except Service_Man.DoesNotExist:
+                pass  # Continue to check for Customer profile
+
+            try:
+                customer_profile = Customer.objects.get(user=user)
+                customer_profile.delete()
+                print("Deleted Customer profile.")
+                profile_deleted = True
+            except Customer.DoesNotExist:
+                pass  # No action needed if the Customer profile does not exist
+
+            if profile_deleted:
+                user.delete()  # Delete the user account
+                messages.success(request, "Profile deleted successfully.")
+                print("User profile deleted, redirecting to index.")
+                return redirect('index')  # Redirect to the index view
+            else:
+                messages.warning(request, "No profile found to delete.")
+                return redirect('profile')
+
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            print(f"Error occurred during deletion: {str(e)}")
+            return redirect('profile')
+
+    return redirect('profile')  # Redirect if not a POST request
+
 
 # Customer Booking
 @login_required(login_url='login')
@@ -847,3 +897,35 @@ def admin_home(request):
     else:
         return redirect('error')
 
+# delete admin customer booking
+@login_required(login_url='login')
+def delete_booking(request, book_id):
+    try:
+        booking = Booking.objects.get(id=book_id)
+        booking.delete()
+        messages.success(request, 'Booking deleted successfully!')
+        return redirect('booking_list')
+    except Booking.DoesNotExist:
+        messages.error(request, 'Booking not found!')
+        return redirect('booking_list')
+    
+# 
+import logging
+
+logger = logging.getLogger(__name__)
+
+@login_required(login_url='login')
+def delete_booking(request, book_id):
+    booking = get_object_or_404(Booking, id=book_id)
+    
+    if request.method == 'POST':
+        logger.debug(f"Deleting booking with id: {booking.id}")  # Log the booking ID
+        booking.delete()
+        return redirect('booking_list')  # Ensure this matches your URL pattern name
+
+    return render(request, 'admin/confirm_delete.html', {'booking': booking})
+
+@login_required(login_url='login')
+def booking_list(request):
+    bookings = Booking.objects.all()  # Fetch all bookings
+    return render(request, 'admin/admin_booking.html', {'books': bookings})
